@@ -1,5 +1,4 @@
 import pygame
-from modules import basic_classes
 from modules import basic_globals
 
 
@@ -30,8 +29,8 @@ class Game:
         for obj in self.draw_reg:
             obj.draw(self.__surface)
 
-    def add_updateable(self, obj):
-        """ Add another updateable """
+    def add_updatable(self, obj):
+        """ Add another updatable """
         self.update_reg.append(obj)
         self.add_drawable(obj)
 

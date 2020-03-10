@@ -1,5 +1,3 @@
-import pygame
-
 
 class GameInstance:
     _reg = []
@@ -19,8 +17,8 @@ class DrawableObj(GameInstance):
         super().__init__()
         self._reg.append(self)
 
-        x = kwargs['x'] if 'x' in kwargs.keys() else 0
-        y = kwargs['y'] if 'y' in kwargs.keys() else 0
+        x = kwargs.get('x', 0)
+        y = kwargs.get('y', 0)
 
         self.visible = True
         self.x = x
@@ -36,7 +34,7 @@ class DrawableObj(GameInstance):
             self.sprite_index %= len(self.sprites)
 
 
-class UpdateableObj(DrawableObj):
+class UpdatableObj(DrawableObj):
     _reg = []
 
     def __init__(self, *args, **kwargs):

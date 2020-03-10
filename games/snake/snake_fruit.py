@@ -1,13 +1,12 @@
 import pygame
 import random
 from modules import basic_classes
-from modules import basic_globals
 
 
 class Fruit(basic_classes.DrawableObj):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.size = 50
+        self.size = kwargs.get('size', 50)
         sprite1 = pygame.Surface((self.size, self.size))
         sprite1.fill((200, 200, 50))
         self.sprites = [sprite1]

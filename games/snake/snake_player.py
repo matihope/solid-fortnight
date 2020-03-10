@@ -7,18 +7,15 @@ class SnakePlayer(basic_classes.UpdateableObj):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.size = 50
+        self.size = kwargs.get('size', 50)
         sprite1 = pygame.Surface((self.size, self.size))
         sprite1.fill(basic_globals.RED)
-        sprite2 = sprite1.copy()
-        sprite2.fill(basic_globals.BLUE)
-        self.sprites = [sprite1, sprite2]
+        self.sprites = [sprite1]
 
         self.dir = 'STOP'
         self.vel = self.size
         self.body = [(self.x-self.size, self.y), (self.x-self.size*2, self.y)]
         self.body_color = (150, 40, 40)
-        self.animation_speed = 1/60
         self.updates_per_second = 5
         self.update_limiter = 0
 

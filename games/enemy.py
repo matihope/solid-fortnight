@@ -3,7 +3,7 @@ from modules import basic_classes
 from modules import basic_globals
 
 
-class Enemy(basic_classes.UpdateableObj):
+class Enemy(basic_classes.UpdatableObj):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
