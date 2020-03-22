@@ -10,7 +10,10 @@ class SnakePlayer(basic_classes.UpdatableObj):
         self.size = kwargs.get('size', 50)
         sprite1 = pygame.Surface((self.size, self.size))
         sprite1.fill(basic_globals.RED)
-        self.sprites = [sprite1]
+        sprite2 = pygame.Surface((self.size, self.size))
+        sprite2.fill(basic_globals.BLUE)
+        self.sprites = [sprite1, sprite2]
+        self.animation_speed = 1/60
 
         self.dir = 'STOP'
         self.vel = self.size
@@ -33,8 +36,8 @@ class SnakePlayer(basic_classes.UpdatableObj):
 
         self.update_limiter += self.updates_per_second/self.parent.FPS
         if self.update_limiter >= 1:
-            self.update_limiter = 0
 
+            self.update_limiter = 0
             if self.dir != 'STOP':
                 self.body.pop(0)
                 self.body.append((self.x, self.y))

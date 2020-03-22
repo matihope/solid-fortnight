@@ -1,16 +1,15 @@
 import pygame
 import random
 import math
-from games.snake import \
-    snake_game
+from games.grarantanna import grarantanna_game
 
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1200, 800
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('game1')
+pygame.display.set_caption('Grarantanna')
 
 
 def main():
-    game = snake_game.SnakeGame(width=WIDTH, height=HEIGHT, fps=60)
+    game = grarantanna_game.Grarantanna(width=WIDTH, height=HEIGHT, fps=60)
 
     clock = pygame.time.Clock()
     while game.run:
@@ -21,7 +20,8 @@ def main():
 
         game.update()
         game.draw()
-        win.blit(game.get_surface(), (0, 0))  # Real drawing
+        x = game.get_surface()
+        win.blit(x, (0, 0))  # Real drawing
         pygame.display.flip()
 
 

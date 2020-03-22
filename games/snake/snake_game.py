@@ -22,7 +22,7 @@ class SnakeGame(game_class.Game):
     def update(self):
         super().update()
 
-        if (self.snake.x, self.snake.y) == (self.fruit.x, self.fruit.y):
+        if self.snake.x == self.fruit.x and self.snake.y == self.fruit.y:
             self.fruit.kill()
             self.snake_score += 1
             self.snake.grow()
