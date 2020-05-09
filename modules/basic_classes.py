@@ -23,13 +23,17 @@ class DrawableObj(GameInstance):
         self.visible = True
         self.x = x
         self.y = y
-        self.sprites = []
-        self.sprite_index = 0
-        self.animation_speed = 0
+        self.sprites = kwargs.get('sprites', [])
+        self.sprite_index = kwargs.get('sprite_index', 0)
+        self.animation_speed = kwargs.get('animation_speed', 0)
+        self.size = kwargs.get('size', 10)
+        self.width = kwargs.get('width', self.size)
+        self.height = kwargs.get('height', self.size)
 
     def draw(self, surface):
         if self.visible and len(self.sprites) > 0:
-            surface.blit(self.sprites[int(self.sprite_index)], (self.x, self.y))
+            index = min(int(self.sprite_index), len(self.sprites)-1)
+            surface.blit(self.sprites[index], (self.x, self.y))
             self.sprite_index += self.animation_speed
             self.sprite_index %= len(self.sprites)
 
@@ -40,6 +44,8 @@ class UpdatableObj(DrawableObj):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._reg.append(self)
+        self.start_x = self.x
+        self.start_y = self.y
         self.active = True
 
     def update(self, keys):

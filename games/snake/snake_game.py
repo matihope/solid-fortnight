@@ -19,11 +19,10 @@ class SnakeGame(game_class.Game):
         self.fruit.kill()
         self.snake_score = 0
 
-    def update(self):
-        super().update()
+    def update(self, delta_time):
+        super().update(delta_time)
 
         if self.snake.x == self.fruit.x and self.snake.y == self.fruit.y:
             self.fruit.kill()
             self.snake_score += 1
             self.snake.grow()
-
