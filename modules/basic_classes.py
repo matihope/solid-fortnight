@@ -48,6 +48,6 @@ class UpdatableObj(DrawableObj):
         self.start_y = self.y
         self.active = True
 
-    def update(self, keys):
+    def update(self, keys, mouse, dt):
         if not self.active:
             return

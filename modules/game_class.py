@@ -22,12 +22,12 @@ class Game:
 
     def update(self, delta_time):
         """ Update self and objects """
-        self.delta_time = delta_time / 15
+        self.delta_time = delta_time
         self.keys = pygame.key.get_pressed()
         self.mouse = pygame.mouse
         for lst in self.update_regs:
             for obj in lst:
-                obj.update(self.keys)
+                obj.update(self.keys, self.mouse, delta_time)
 
     def draw(self):
         """ Draw objects to the surface """

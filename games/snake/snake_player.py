@@ -22,8 +22,8 @@ class SnakePlayer(basic_classes.UpdatableObj):
         self.updates_per_second = 5
         self.update_limiter = 0
 
-    def update(self, keys):
-        super().update(keys)
+    def update(self, keys, mouse, delta_time):
+        super().update(keys, mouse, delta_time)
 
         if keys[pygame.K_a]:
             self.dir = 'LEFT'

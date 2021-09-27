@@ -1,0 +1,13 @@
+{
+    "SERVER_IP": "192.168.0.17",
+    "SERVER_PORT": 8888,
+    "FORMAT": "utf-8",
+    "MESSAGE_HEADER_LENGTH": 512,
+    "CMD_START": "!",
+    "ARG_SEPARATOR": ";",
+    "COMMANDS": [
+        { "CMD": "DISCONNECT", "ARGS": 0 },
+        { "CMD": "SAY", "ARGS": 1 },
+        { "CMD": "INIT", "ARGS": 1 }
+    ]
+}
