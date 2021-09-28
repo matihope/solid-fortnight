@@ -25,9 +25,17 @@ class SocketConnection(threading.Thread):
         self.data_buffer = ''
         self.deamon = True  # exit with parent
         self.done = False
+        self.connected = False
+
+    def send_message(self, message):
+        self.server_socket.send(message.encode(GLB['FORMAT']))
 
     def stop(self):
+        self.connected = False
         self.done = True
+
+    def __bool__(self):
+        return self.connected and not self.done
 
     def connect(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,67 +43,70 @@ class SocketConnection(threading.Thread):
         for i in range(3):
             try:
                 self.server_socket.connect(address)
+                self.server_socket.setblocking(False)
                 print(f'[CONNECTION ESTABILISHED] Connected to: {address}')
-                return True
+                self.connected = True
+                return
             except Exception as e:
                 print(f'[CONNECTION FAILED] Failed to connect to: {address}')
                 if i < 2:
                     print('[CONNECTION RETRY] Retrying...')
                     time.sleep(5)
         print('[CONNECTION RETRY] Quting...')
-        return False
+        self.done = True
 
     def run(self):
         """ Connects to Server, then Loops until the server hangs-up """
-        if not self.connect():
-            return
+        self.connect()
 
         # Now we're connected, start reading commands
+        data = ''
         while not self.done:
-            incoming = self.server_socket.recv(GLB["MESSAGE_HEADER_LENGTH"])
-
-            if len(incoming) == 0:
+            try:
+                new_data = self.server_socket.recv(1024).decode(GLB['FORMAT']).rstrip()
+                print(new_data)
+                
+            except BlockingIOError:
+                pass
+            except ConnectionResetError:
                 # Socket has closed
                 new_event = pygame.event.Event(NetworkEvents.EVENT_HANGUP,
                                                {"address": self.server_address})
                 pygame.event.post(new_event)
                 self.server_socket.close()
                 self.done = True
-
             else:
-                # Data has arrived
-                try:
-                    msg_len = int(incoming.decode(GLB['FORMAT']))
-                    msg = self.server_socket.recv(msg_len).decode(GLB['FORMAT'])
+                if GLB['MESSAGE_END'] in new_data:
+                    # divide new message by message separator
+                    divided_data = new_data.split(GLB['MESSAGE_END'])
 
-                    cmd, args = process_msg(msg)
-                    if cmd == 'DISCONNECT':
-                        pygame.event.post(
-                            pygame.event.Event(NetworkEvents.EVENT_HANGUP,
-                                               {"address": self.server_address})
-                        )
-                        self.server_socket.close()
-                        self.done = True
-                    else:
-                        # post event to pygame main loop
-                        pygame.event.post(
-                            pygame.event.Event(NetworkEvents.EVENT_ACTION,
-                                               {"action": cmd, "args": args})
-                        )
+                    # finish the first message
+                    queried_commands = [data + divided_data.pop(0).rstrip()]
 
-                except Exception as e:
-                    print(e)
+                    # process the rest of new_data
+                    while True:
+                        d = divided_data.pop(0).rstrip()
+                        if len(divided_data):
+                            queried_commands.append(d)
+                        else:
+                            # clear the data buffer and
+                            # set data to last piece of new_data
+                            data = d
+                            break
 
+                    for finished_command in queried_commands:
 
-def send_message(connection: SocketConnection, msg):
-    try:
-        msg_len = len(msg)
-        send_length = str(msg_len).encode(GLB['FORMAT'])
-        send_length += b' ' * (GLB['MESSAGE_HEADER_LENGTH'] - len(send_length))
-
-        connection.server_socket.send(send_length)
-        connection.server_socket.send(msg.encode(GLB['FORMAT']))
-        return True
-
-    except Exception as e:
-        return False
+                        cmd, args = process_msg(finished_command)
+                        if cmd == 'DISCONNECT':
+                            pygame.event.post(
+                                pygame.event.Event(NetworkEvents.EVENT_HANGUP,
+                                                    {"address": self.server_address})
+                            )
+                            self.server_socket.close()
+                            self.done = True
+                        else:
+                            # post event to pygame main loop
+                            pygame.event.post(
+                                pygame.event.Event(NetworkEvents.EVENT_ACTION,
+                                                    {"action": cmd, "args": args})
+                            )

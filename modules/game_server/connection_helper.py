@@ -28,4 +28,4 @@ def gen_cmd(cmd, args):
     for arg in args:
         msg += f'{GLB["ARG_SEPARATOR"]}{arg}'
 
-    return msg
+    return msg + GLB["MESSAGE_END"]

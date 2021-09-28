@@ -18,6 +18,9 @@ class Game:
         self.keys = None
         self.mouse = None
 
+        self.connection = None
+        self.client_id = -1
+
         self.__surface = pygame.Surface((width, height))
 
     def update(self, delta_time):
