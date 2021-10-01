@@ -3,16 +3,21 @@ from modules import basic_globals
 
 
 class Game:
-    def __init__(self, width, height, fps=60):
+    def __init__(self, width, height, fps=60, physics_fps=60):
         self.draw_regs = [[]]  # reg = registry
         self.update_regs = [[]]
 
         self.WIDTH = width
         self.HEIGHT = height
         self.FPS = fps
+        self._physics_fps = None
+        self.physics_update_threshold = None
+        self.PHYSICS_FPS = physics_fps
+        
         self.run = True
 
         self.delta_time = 1
+        self.time_counter = 0
 
         self.bg_color = basic_globals.BLUE
         self.keys = None
@@ -23,6 +28,15 @@ class Game:
 
         self.__surface = pygame.Surface((width, height))
 
+    @property
+    def PHYSICS_FPS(self) -> int:
+        return self._physics_fps
+
+    @PHYSICS_FPS.setter
+    def PHYSICS_FPS(self, value: int) -> None:
+        self._physics_fps = value
+        self.physics_update_threshold = 1000 / self.PHYSICS_FPS
+
     def update(self, delta_time):
         """ Update self and objects """
         self.delta_time = delta_time
@@ -31,6 +45,13 @@ class Game:
         for lst in self.update_regs:
             for obj in lst:
                 obj.update(self.keys, self.mouse, delta_time)
+
+        self.time_counter += delta_time
+        if self.time_counter > self.physics_update_threshold:
+            self.time_counter -= self.physics_update_threshold
+            for lst in self.update_regs:
+                for obj in lst:
+                    obj.update_physics(self.keys, self.mouse, delta_time)
 
     def draw(self):
         """ Draw objects to the surface """

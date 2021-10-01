@@ -8,8 +8,11 @@
     "COMMANDS": [
         { "CMD": "DISCONNECT", "ARGS": 0 },
         { "CMD": "SAY", "ARGS": 1 },
-        { "CMD": "INIT", "ARGS": 1 },
-        { "CMD": "PLAYERJOIN", "ARGS": 3 },
-        { "CMD": "SETPOS", "ARGS": 3 }
+        { "CMD": "TOCLIENT", "ARGS": -1 },
+        { "CMD": "INIT", "ARGS": 0 },
+        { "CMD": "PLAYERJOIN", "ARGS": 2 },
+        { "CMD": "PLAYERJOINEDBEFORE", "ARGS": 2 },
+
+        { "CMD": "SETPOS", "ARGS": 2 }
     ]
 }

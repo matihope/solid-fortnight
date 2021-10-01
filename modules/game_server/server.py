@@ -18,6 +18,7 @@ def init_connection(conn, addr):
 
     msg = gen_cmd('INIT', [global_id])
     conn.send(msg.encode(GLB['FORMAT']))
+
     return global_id
 
 
@@ -55,19 +56,31 @@ def handle_client(conn, addr):
                 # execute the commands
                 for finished_command in queried_commands:
                     cmd, args = process_msg(finished_command)
-                    if cmd == 'DISCONNECT':
-                        connected = False
-                        connections.pop(client_id)
-                        break
-                    elif cmd == 'SAY':
-                        print(f'{addr}: {args[0]}')
+
+                    # direct command to other player
+                    if cmd == 'TOCLIENT':
+                        target_id = int(args.pop(0))
+                        target_command = args.pop(0)
+                        target_conn, _ = connections[target_id]
+                        target_conn.send(gen_cmd(target_command,
+                                                 [client_id] + args).encode(GLB['FORMAT']))
 
                     else:
-                        for other_client in connections.values():
-                            if other_client == (conn, addr):
+                        # GLOBAL COMMANDS
+                        # propagate the command to other clients
+                        for other_conn, _ in connections.values():
+                            if other_conn == conn:
                                 continue
-                            other_client[0].send(gen_cmd(cmd, args).encode(GLB['FORMAT']))
+                            other_conn.send(gen_cmd(cmd, [client_id] + args).encode(GLB['FORMAT']))
 
+                        if cmd == 'DISCONNECT':
+                            connected = False
+                            break
+
+                        elif cmd == 'SAY':
+                            print(f'{addr}: {args[0]}')
+
+    connections.pop(client_id)
     conn.close()
     print(f'[CONNECTION CLOSED] Client {addr} with id {client_id} disconnected.')
 

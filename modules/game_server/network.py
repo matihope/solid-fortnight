@@ -28,7 +28,8 @@ class SocketConnection(threading.Thread):
         self.connected = False
 
     def send_message(self, message):
-        self.server_socket.send(message.encode(GLB['FORMAT']))
+        if self.connected:
+            self.server_socket.send(message.encode(GLB['FORMAT']))
 
     def stop(self):
         self.connected = False
@@ -64,8 +65,7 @@ class SocketConnection(threading.Thread):
         while not self.done:
             try:
                 new_data = self.server_socket.recv(1024).decode(GLB['FORMAT']).rstrip()
-                print(new_data)
-                
+
             except BlockingIOError:
                 pass
             except ConnectionResetError:
@@ -96,11 +96,11 @@ class SocketConnection(threading.Thread):
 
                     for finished_command in queried_commands:
 
-                        cmd, args = process_msg(finished_command)
+                        cmd, args = process_msg(finished_command, as_client=True)
                         if cmd == 'DISCONNECT':
                             pygame.event.post(
                                 pygame.event.Event(NetworkEvents.EVENT_HANGUP,
-                                                    {"address": self.server_address})
+                                                   {"address": self.server_address})
                             )
                             self.server_socket.close()
                             self.done = True
@@ -108,5 +108,5 @@ class SocketConnection(threading.Thread):
                             # post event to pygame main loop
                             pygame.event.post(
                                 pygame.event.Event(NetworkEvents.EVENT_ACTION,
-                                                    {"action": cmd, "args": args})
+                                                   {"action": cmd, "args": args})
                             )

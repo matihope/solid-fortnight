@@ -51,3 +51,7 @@ class UpdatableObj(DrawableObj):
     def update(self, keys, mouse, dt):
         if not self.active:
             return
+
+    def update_physics(self, keys, mouse, dt):
+        if not self.active:
+            return
