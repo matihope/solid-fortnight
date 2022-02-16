@@ -12,7 +12,7 @@ class Player(basic_classes.UpdatableObj):
         sprite1.fill(basic_globals.GREEN)
         self.sprites = [sprite1]
 
-    def update(self, keys, mouse, delta_time):
+    def update_physics(self, keys, mouse, delta_time):
         super().update_physics(keys, mouse, delta_time)
 
         delta_x = keys[pygame.K_d] - keys[pygame.K_a]
@@ -20,20 +20,20 @@ class Player(basic_classes.UpdatableObj):
         self.x += delta_x * 5
         self.y += delta_y * 5
 
-        # if delta_x != 0 or delta_y != 0:
-        #     if self.parent.client_id > 0:
-        #         self.parent.connection.send_message(
-        #             gen_cmd(
-        #                 'SETPOS', [self.x, self.y]
-        #             )
-        #         )
+        if delta_x != 0 or delta_y != 0:
+            if self.parent.client_id > 0:
+                self.parent.connection.send_message(
+                    gen_cmd(
+                        'SETPOS', [self.x, self.y]
+                    )
+                )
 
 
 class JoinedPlayer(basic_classes.DrawableObj):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.id = kwargs.get('id')
+        self.client_id = kwargs.get('client_id')
         sprite1 = pygame.Surface((self.size, self.size))
         sprite1.fill(basic_globals.RED)
         self.sprites = [sprite1]

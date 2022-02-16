@@ -15,8 +15,8 @@ def process_msg(msg, as_client=False) -> tuple[str, list]:
         # print(f'[COMMAND ACCEPTED] {new_command} {args}')
 
         for cmd in GLB['COMMANDS']:
-            # in server settings, the ARGS count is viewed as recieving server
-            # so when client RECIEVES, it has ARGS + 1 args
+            # in server settings, the ARGS count is viewed as receiving server
+            # so when client RECEIVES, it has ARGS + 1 args
             if cmd['CMD'] == new_command:
                 if new_command == 'TOCLIENT' or \
                    cmd['ARGS'] == len(args) or \

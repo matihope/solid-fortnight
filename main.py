@@ -24,55 +24,24 @@ def main():
         height=GLB['WINDOW_HEIGHT'],
         fps=GLB['FPS']
     )
-    conn = network.SocketConnection("192.168.0.17", 8888)
-    game.connection = conn
+    lobby = scrabble_game.Lobby(
+        width=GLB['WINDOW_WIDTH'],
+        height=GLB['WINDOW_HEIGHT'],
+        fps=GLB['FPS']
+    )
+    conn = network.SocketConnection("192.168.1.28", 8888)
     conn.start()
-
-    while not conn.connected:
-        if conn.done:
-            quit()
-
-    p = Player(x=50, y=30, size=30)
-    game.add_updatable(p)
-
-    players = {}
+    connected_players = {}
+    game.connection = conn
+    game.connected_players = connected_players
 
     clock = pygame.time.Clock()
     while game.run:
         for e in pygame.event.get():
+            game.process_event(e)
             if e.type == pygame.QUIT:
                 game.run = False
-                conn.send_message(gen_cmd('DISCONNECT', []))
                 conn.stop()
-
-            if e.type == network.NetworkEvents.EVENT_ACTION:
-                # print(e.action, e.args)
-                if e.action == 'INIT':
-                    new_id = int(e.args.pop(0))
-                    print(f'INITIALIZED WITH ID {new_id}')
-                    game.client_id = new_id
-                    conn.send_message(gen_cmd('PLAYERJOIN', [p.x, p.y]))
-
-                elif e.action == 'PLAYERJOIN':
-                    player_id, x, y = [int(a) for a in e.args]
-                    # Tell new player about current player
-                    conn.send_message(gen_cmd('TOCLIENT', [player_id, 'PLAYERJOINEDBEFORE', p.x, p.y]))
-                    players[player_id] = JoinedPlayer(id=player_id, size=30, x=x, y=y)
-                    game.add_drawable(players[player_id])
-
-                elif e.action == 'PLAYERJOINEDBEFORE':
-                    player_id, x, y = [int(a) for a in e.args]
-                    players[player_id] = JoinedPlayer(id=player_id, size=30, x=x, y=y)
-                    game.add_drawable(players[player_id])
-
-                elif e.action == 'SETPOS':
-                    player_id, x, y = [int(a) for a in e.args]
-                    players[player_id].x = x
-                    players[player_id].y = y
-
-            if e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_SPACE:
-                    conn.send_message(gen_cmd('SAY', ['HELLO WORLD!']))
 
         game.update(clock.tick(game.FPS))
         game.draw()

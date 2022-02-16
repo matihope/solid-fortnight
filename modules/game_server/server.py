@@ -27,7 +27,7 @@ def handle_client(conn, addr):
 
     connected = True
     data = ''
-    while connected:
+    while connected and client_id in connections:
         try:
             new_data: str = conn.recv(1024).decode(FORMAT).rstrip()
         except BlockingIOError:
@@ -65,28 +65,41 @@ def handle_client(conn, addr):
                         target_conn.send(gen_cmd(target_command,
                                                  [client_id] + args).encode(GLB['FORMAT']))
 
+                    elif cmd == 'PING':
+                        target_id = int(args.pop(0))
+                        target_conn, _ = connections[target_id]
+                        target_conn.send(gen_cmd(cmd, [client_id]).encode(GLB['FORMAT']))
+
                     else:
                         # GLOBAL COMMANDS
                         # propagate the command to other clients
-                        for other_conn, _ in connections.values():
+                        to_pop = []
+                        for other_client_id in connections.keys():
+                            other_conn, _ = connections[other_client_id]
                             if other_conn == conn:
                                 continue
-                            other_conn.send(gen_cmd(cmd, [client_id] + args).encode(GLB['FORMAT']))
+                            try:
+                                other_conn.send(gen_cmd(cmd, [client_id] + args).encode(GLB['FORMAT']))
+                            except BrokenPipeError:
+                                # broken pipe with other client
+                                to_pop.append(other_client_id)
+
+                        for popper in to_pop:
+                            connections.pop(popper)
 
                         if cmd == 'DISCONNECT':
                             connected = False
-                            break
 
                         elif cmd == 'SAY':
                             print(f'{addr}: {args[0]}')
 
-    connections.pop(client_id)
+    if client_id in connections:
+        connections.pop(client_id)
     conn.close()
     print(f'[CONNECTION CLOSED] Client {addr} with id {client_id} disconnected.')
 
 
 def main():
-
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(ADDR)
 

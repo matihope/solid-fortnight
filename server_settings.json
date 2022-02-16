@@ -1,9 +1,9 @@
 {
-    "SERVER_IP": "192.168.0.17",
+    "SERVER_IP": "192.168.1.28",
     "SERVER_PORT": 8888,
     "FORMAT": "utf-8",
     "MESSAGE_END": "#",
-    "CMD_START": "!",
+    "CMD_START": "!>",
     "ARG_SEPARATOR": ";",
     "COMMANDS": [
         { "CMD": "DISCONNECT", "ARGS": 0 },
@@ -12,6 +12,7 @@
         { "CMD": "INIT", "ARGS": 0 },
         { "CMD": "PLAYERJOIN", "ARGS": 2 },
         { "CMD": "PLAYERJOINEDBEFORE", "ARGS": 2 },
+        { "CMD": "PING", "ARGS": 1 },
 
         { "CMD": "SETPOS", "ARGS": 2 }
     ]

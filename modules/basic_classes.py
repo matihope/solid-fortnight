@@ -2,8 +2,10 @@
 class GameInstance:
     _reg = []
 
-    def __init__(self):
+    def __init__(self, tag: str = ""):
         self._reg.append(self)
+        self.object_id = len(self._reg)
+        self.tag = tag
         self.parent = None
 
     def add_parent(self, parent):

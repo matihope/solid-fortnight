@@ -1,4 +1,4 @@
-from modules.game_server.connection_helper import process_msg
+from modules.game_server.connection_helper import gen_cmd, process_msg
 import socket
 import json
 import threading
@@ -11,8 +11,8 @@ with open('server_settings.json') as f:
 
 
 class NetworkEvents(enum.IntEnum):
-    EVENT_HANGUP = pygame.USEREVENT + 1
-    EVENT_MESSAGE = pygame.USEREVENT + 2
+    EVENT_DISCONNECT = pygame.USEREVENT + 1
+    EVENT_INIT = pygame.USEREVENT + 2
     EVENT_ACTION = pygame.USEREVENT + 3
 
 
@@ -32,8 +32,10 @@ class SocketConnection(threading.Thread):
             self.server_socket.send(message.encode(GLB['FORMAT']))
 
     def stop(self):
+        self.send_message(gen_cmd('DISCONNECT', []))
         self.connected = False
         self.done = True
+        self.server_socket.close()
 
     def __bool__(self):
         return self.connected and not self.done
@@ -98,12 +100,20 @@ class SocketConnection(threading.Thread):
 
                         cmd, args = process_msg(finished_command, as_client=True)
                         if cmd == 'DISCONNECT':
+                            client_id = int(args.pop(0))
                             pygame.event.post(
-                                pygame.event.Event(NetworkEvents.EVENT_HANGUP,
-                                                   {"address": self.server_address})
+                                pygame.event.Event(NetworkEvents.EVENT_DISCONNECT,
+                                                   {"client_id": client_id})
                             )
-                            self.server_socket.close()
-                            self.done = True
+                        elif cmd == "INIT":
+                            client_id = int(args.pop(0))
+                            pygame.event.post(
+                                pygame.event.Event(NetworkEvents.EVENT_INIT,
+                                                   {"client_id": client_id})
+                            )
+                        elif cmd == "PING":
+                            client_id = int(args.pop(0))
+                            print(f"[PING] You were pinged by {client_id}!")
                         else:
                             # post event to pygame main loop
                             pygame.event.post(
